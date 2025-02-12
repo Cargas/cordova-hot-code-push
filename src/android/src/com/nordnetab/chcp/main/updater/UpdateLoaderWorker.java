@@ -67,45 +67,61 @@ class UpdateLoaderWorker implements WorkerTask {
         Log.d("CHCP", "Starting loader worker ");
         // initialize before running
         if (!init()) {
+            Log.d("CHCP", "Not initialized, bailing out");
             return;
         }
 
         // download new application config
+        Log.d("CHCP", "Getting new application config: " + applicationConfigUrl);
+        
         final ApplicationConfig newAppConfig = downloadApplicationConfig(applicationConfigUrl);
         if (newAppConfig == null) {
+            Log.d("CHCP", "Failed to get new application config");
             setErrorResult(ChcpError.FAILED_TO_DOWNLOAD_APPLICATION_CONFIG, null);
             return;
         }
+        
+        Log.d("CHCP", "Getting new content config");
         final ContentConfig newContentConfig = newAppConfig.getContentConfig();
         if (newContentConfig == null
                 || TextUtils.isEmpty(newContentConfig.getReleaseVersion())
                 || TextUtils.isEmpty(newContentConfig.getContentUrl())) {
+            Log.d("CHCP", "Failed to get new content config");
             setErrorResult(ChcpError.NEW_APPLICATION_CONFIG_IS_INVALID, null);
             return;
+        } else {
+            Log.d("CHCP", "Got new content config, release version: " + newContentConfig.getReleaseVersion() + ", content url: " + newContentConfig.getContentUrl());
         }
 
         // check if there is a new content version available
         if (newContentConfig.getReleaseVersion().equals(oldAppConfig.getContentConfig().getReleaseVersion())) {
+            Log.d("CHCP", "Versions are the same, nothing to update");
             setNothingToUpdateResult(newAppConfig);
             return;
         }
 
         // check if current native version supports new content
         if (newContentConfig.getMinimumNativeVersion() > appNativeVersion) {
+            Log.d("CHCP", "Native version is too low to update to the new content version");
             setErrorResult(ChcpError.APPLICATION_BUILD_VERSION_TOO_LOW, newAppConfig);
             return;
         }
 
         // download new content manifest
+        Log.d("CHCP", "Downloading new content manifest");
+        
         final ContentManifest newContentManifest = downloadContentManifest(newContentConfig.getContentUrl());
         if (newContentManifest == null) {
+            Log.d("CHCP", "Failed to download new content manifest");
             setErrorResult(ChcpError.FAILED_TO_DOWNLOAD_CONTENT_MANIFEST, newAppConfig);
             return;
         }
 
         // find files that were updated
+        Log.d("CHCP", "Calculating difference between manifests");
         final ManifestDiff diff = oldManifest.calculateDifference(newContentManifest);
         if (diff.isEmpty()) {
+            Log.d("CHCP", "No difference between manifests, nothing to update");
             manifestStorage.storeInFolder(newContentManifest, filesStructure.getWwwFolder());
             appConfigStorage.storeInFolder(newAppConfig, filesStructure.getWwwFolder());
             setNothingToUpdateResult(newAppConfig);
@@ -113,14 +129,18 @@ class UpdateLoaderWorker implements WorkerTask {
             return;
         }
 
+
         // switch file structure to new release
+        Log.d("CHCP", "Switching to new release version");
         filesStructure.switchToRelease(newAppConfig.getContentConfig().getReleaseVersion());
 
         recreateDownloadFolder(filesStructure.getDownloadFolder());
 
         // download files
+        Log.d("CHCP", "Downloading new and changed files");
         boolean isDownloaded = downloadNewAndChangedFiles(newContentConfig.getContentUrl(), diff);
         if (!isDownloaded) {
+            Log.d("CHCP", "Failed to download new and changed files");
             cleanUp();
             setErrorResult(ChcpError.FAILED_TO_DOWNLOAD_UPDATE_FILES, newAppConfig);
             return;

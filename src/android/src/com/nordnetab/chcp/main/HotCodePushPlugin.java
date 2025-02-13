@@ -603,6 +603,8 @@ public class HotCodePushPlugin extends CordovaPlugin {
     private void redirectToLocalStorageIndexPage() {
         final String indexPage = getStartingPage();
 
+        Log.d("CHCP", "Redirecting to the external index page: " + indexPage);
+
         // remove query and fragment parameters from the index page path
         // TODO: cleanup this fragment
         String strippedIndexPage = indexPage;
@@ -616,10 +618,12 @@ public class HotCodePushPlugin extends CordovaPlugin {
             }
         }
 
+        Log.d("CHCP", "Stripped index page: " + strippedIndexPage);
+
         // make sure, that index page exists
         String external = Paths.get(fileStructure.getWwwFolder(), strippedIndexPage);
         if (!new File(external).exists()) {
-            Log.d("CHCP", "External starting page not found. Aborting page change.");
+            Log.d("CHCP", "External starting page not found. Aborting page change. : " + external);
             return;
         }
 

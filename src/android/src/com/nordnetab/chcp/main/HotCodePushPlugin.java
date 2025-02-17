@@ -608,7 +608,7 @@ public class HotCodePushPlugin extends CordovaPlugin {
         // remove query and fragment parameters from the index page path
         // TODO: cleanup this fragment
         String strippedIndexPage = indexPage;
-        if (strippedIndexPage.contains("#") || strippedIndexPage.contains("?")) {
+        if (strippedIndexPage.contains("#") || strippedIndexPage.contains("?") || strippedIndexPage.contains("https://localhost/")) {
             int idx = strippedIndexPage.lastIndexOf("?");
             if (idx >= 0) {
                 strippedIndexPage = strippedIndexPage.substring(0, idx);
@@ -616,6 +616,8 @@ public class HotCodePushPlugin extends CordovaPlugin {
                 idx = strippedIndexPage.lastIndexOf("#");
                 strippedIndexPage = strippedIndexPage.substring(0, idx);
             }
+
+            strippedIndexPage = strippedIndexPage.replace("https://localhost/", "");
         }
 
         Log.d("CHCP", "Stripped index page: " + strippedIndexPage);

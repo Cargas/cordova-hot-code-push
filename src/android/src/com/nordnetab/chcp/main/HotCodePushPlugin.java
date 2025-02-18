@@ -609,15 +609,12 @@ public class HotCodePushPlugin extends CordovaPlugin {
         // TODO: cleanup this fragment
         String strippedIndexPage = indexPage;
         if (strippedIndexPage.contains("#") || strippedIndexPage.contains("?") || strippedIndexPage.contains("https://localhost/")) {
-            int idx = strippedIndexPage.lastIndexOf("?");
-            if (idx >= 0) {
-                strippedIndexPage = strippedIndexPage.substring(0, idx);
-            } 
-
-            idx = strippedIndexPage.lastIndexOf("#");
-            
-            if (idx >= 0) {
-                strippedIndexPage = strippedIndexPage.substring(0, idx);
+            String[] chars = { "#", "?" };
+            for (String c : chars) {
+                int idx = strippedIndexPage.lastIndexOf(c);
+                if (idx >= 0) {
+                    strippedIndexPage = strippedIndexPage.substring(0, idx);
+                }
             }
 
             strippedIndexPage = strippedIndexPage.replace("https://localhost/", "");

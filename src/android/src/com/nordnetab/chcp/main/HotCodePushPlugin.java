@@ -612,8 +612,11 @@ public class HotCodePushPlugin extends CordovaPlugin {
             int idx = strippedIndexPage.lastIndexOf("?");
             if (idx >= 0) {
                 strippedIndexPage = strippedIndexPage.substring(0, idx);
-            } else {
-                idx = strippedIndexPage.lastIndexOf("#");
+            } 
+
+            idx = strippedIndexPage.lastIndexOf("#");
+            
+            if (idx >= 0) {
                 strippedIndexPage = strippedIndexPage.substring(0, idx);
             }
 

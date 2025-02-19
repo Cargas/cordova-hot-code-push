@@ -608,7 +608,7 @@ public class HotCodePushPlugin extends CordovaPlugin {
         // remove query and fragment parameters from the index page path
         // TODO: cleanup this fragment
         String strippedIndexPage = indexPage;
-        if (strippedIndexPage.contains("#") || strippedIndexPage.contains("?") || strippedIndexPage.contains("https://localhost/")) {
+        if (strippedIndexPage.contains("#") || strippedIndexPage.contains("?")) {
             String[] chars = { "#", "?" };
             for (String c : chars) {
                 int idx = strippedIndexPage.lastIndexOf(c);
@@ -616,8 +616,6 @@ public class HotCodePushPlugin extends CordovaPlugin {
                     strippedIndexPage = strippedIndexPage.substring(0, idx);
                 }
             }
-
-            strippedIndexPage = strippedIndexPage.replace("https://localhost/", "");
         }
 
         Log.d("CHCP", "Stripped index page: " + strippedIndexPage);
@@ -631,9 +629,9 @@ public class HotCodePushPlugin extends CordovaPlugin {
 
         // load index page from the external source
         Log.d("CHCP", "Loading external page: " + external);
-        
+
         // we don't use any params here so we don't care about the non stripped version
-        // external = Paths.get(fileStructure.getWwwFolder(), strippedIndexPage);
+        //external = Paths.get(fileStructure.getWwwFolder(), strippedIndexPage);
         webView.loadUrlIntoView(FILE_PREFIX + external, false);
 
     }
